@@ -1,13 +1,15 @@
-from typing import Union
 from dropbox import Dropbox
 from dropbox.files import FileMetadata
+from tika import parser
 
 
 class DropboxFileStorage:
-    client: Dropbox
+    __client: Dropbox
+    __access_token: str
 
     def __init__(self, access_token: str):
         self.__client = Dropbox(access_token)
+        self.__access_token = access_token
 
     def get_file_list(self):
         response = self.__client.files_list_folder(
@@ -32,10 +34,20 @@ class DropboxFileStorage:
     def sync(self):
         files = self.get_file_list()
         for file in files:
-            self.download_file(file['name'], file['path'])
+            local_filename = self.download_file(file['name'], file['path'])
+            extracted_data = self.extract_content(local_filename)
+            print("Content: ", extracted_data["content"])
+            print("Metadata: ", extracted_data["metadata"])
+            print("Status: ", extracted_data["status"])
+
 
     def download_file(self, name: str, path: str):
-        with open('/tmp/dropbox/' + name, "wb") as f:
+        local_filename = '/tmp/dropbox/' + name
+        with open(local_filename, "wb") as f:
             metadata, res = self.__client.files_download(path)
             f.write(res.content)
+        return local_filename
+
+    def extract_content(self, filename):
+        return parser.from_file(filename)
 
