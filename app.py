@@ -3,12 +3,17 @@ from flask_restful import Api
 from dotenv import load_dotenv
 from flask_migrate import Migrate
 from src.models import *
-
+from src.deliveries.http.authenticate import Authenticate
+from src.deliveries.http.authorize import Authorize
+from src.deliveries.http.login import Login
+from src.deliveries.http.logout import Logout
+from src.deliveries.http.register import Register
+# from src.deliveries.http.sync import Sync
 load_dotenv()
 
 import os
 from database import db, bcrypt
-from routes import initialize_routes
+# from routes import initialize_routes
 
 
 def create_app(name):
@@ -20,7 +25,12 @@ def create_app(name):
     db.init_app(app)
     bcrypt.init_app(app)
     api = Api(app)
-    initialize_routes(api)
+    api.add_resource(Authorize, '/<provider>/authorize')
+    api.add_resource(Authenticate, '/<provider>/authenticate')
+    # api.add_resource(Sync, '/sync')
+    api.add_resource(Register, '/register')
+    api.add_resource(Login, '/login')
+    api.add_resource(Logout, '/logout')
 
     return app
 
