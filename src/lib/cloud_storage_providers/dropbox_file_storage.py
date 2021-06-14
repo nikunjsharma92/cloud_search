@@ -1,16 +1,34 @@
+from typing import Union
+
 from dropbox import Dropbox
 from dropbox.files import FileMetadata
 from tika import parser
-
+from dropbox import DropboxOAuth2FlowNoRedirect
 
 
 class DropboxFileStorage:
-    __client: Dropbox
+    __client: Union[Dropbox, None]
     __access_token: str
 
-    def __init__(self, access_token: str):
+    def __init__(self):
+        self.__client = None
+
+    def authorize_no_redirect(self):
+        pass
+
+    def authorize_redirect(self):
+        pass
+
+    def authorize(self, **args):
+        return DropboxOAuth2FlowNoRedirect(consumer_key='5q28gt6qyndwadq', consumer_secret='nt7vu3ycirob5db',
+                                           token_access_type='online', locale='en').start()
+
+    def authenticate(self, code):
+        return DropboxOAuth2FlowNoRedirect(consumer_key='5q28gt6qyndwadq', consumer_secret='nt7vu3ycirob5db',
+                                           token_access_type='online', locale='en').finish(code)
+
+    def init_client(self, access_token):
         self.__client = Dropbox(access_token)
-        self.__access_token = access_token
 
     def get_file_list(self):
         response = self.__client.files_list_folder(
@@ -35,19 +53,20 @@ class DropboxFileStorage:
     def sync(self):
         files = self.get_file_list()
         for file in files:
-            local_filename = self.download_file(file['name'], file['path'])
-            extracted_data = self.extract_content(local_filename)
-            print("Content: ", extracted_data["content"])
-            print("Metadata: ", extracted_data["metadata"])
-            print("Status: ", extracted_data["status"])
-
+            extracted_chunk = self.download_file(file['name'], file['path'])
+            # write to ES
 
     def download_file(self, name: str, path: str):
-        local_filename = '/tmp/dropbox/' + name
-        with open(local_filename, "wb") as f:
-            metadata, res = self.__client.files_download(path)
-            f.write(res.content)
-        return local_filename
+        metadata, res = self.__client.files_download(path)
+        for data_chunk in res.iter_content(chunk_size=1000):
+            extracted_content = self.extract_content(data_chunk)
+            if extracted_content['content'] is not None:
+                yield extracted_content['content']
 
-    def extract_content(self, filename):
-        return parser.from_file(filename)
+        # since dropbox utilizes stream to make requests, connections need to be closed
+        # more information
+        # <https://github.com/dropbox/dropbox-sdk-python/blob/13bf19853a8e418dd2bba3e8857619c53206a3c1/dropbox/dropbox_client.py#L568>
+        self.__client.close()
+
+    def extract_content(self, data_chunk):
+        return parser.from_buffer(data_chunk)
