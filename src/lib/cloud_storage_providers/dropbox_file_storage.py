@@ -4,6 +4,7 @@ from dropbox import Dropbox
 from dropbox.files import FileMetadata
 from tika import parser
 from dropbox import DropboxOAuth2FlowNoRedirect
+import os
 
 
 class DropboxFileStorage:
@@ -20,11 +21,11 @@ class DropboxFileStorage:
         pass
 
     def authorize(self, **args):
-        return DropboxOAuth2FlowNoRedirect(consumer_key='5q28gt6qyndwadq', consumer_secret='nt7vu3ycirob5db',
+        return DropboxOAuth2FlowNoRedirect(consumer_key=os.getenv('DROPBOX_KEY'), consumer_secret=os.getenv('DROPBOX_SECRET'),
                                            token_access_type='online', locale='en').start()
 
     def authenticate(self, code):
-        return DropboxOAuth2FlowNoRedirect(consumer_key='5q28gt6qyndwadq', consumer_secret='nt7vu3ycirob5db',
+        return DropboxOAuth2FlowNoRedirect(consumer_key=os.getenv('DROPBOX_KEY'), consumer_secret=os.getenv('DROPBOX_SECRET'),
                                            token_access_type='online', locale='en').finish(code)
 
     def init_client(self, access_token):
