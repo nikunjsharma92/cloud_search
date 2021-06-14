@@ -1,20 +1,21 @@
 from flask_restful import Resource
-from dropbox import DropboxOAuth2FlowNoRedirect
+from werkzeug.exceptions import BadRequest
+
+from src.usecases.cloud_storage_provider_management import CloudStorageProviderManagement
+from src.utils.authorize import authorize
 
 
-class Authorize(Resource):
+class AuthorizeProvider(Resource):
     # get and save tokens from services like drropbox and google drive
-    def get(self, provider):
-        # return {
-        #     'authorization_url': 'https://www.dropbox.com/oauth2/authorize?client_id={}&response_type=code'.format('5q28gt6qyndwadq')
-        # }
-        return DropboxOAuth2FlowNoRedirect(consumer_key='5q28gt6qyndwadq', consumer_secret='nt7vu3ycirob5db', token_access_type='online', locale='en').start()
-        # cloud_storage_provider = CloudStorageProvider(provider)
-        # return {'authorization_url': 'cloud_storage_provider.get_authorization_url()'}
+    @authorize
+    def get(self, user, provider):
+        try:
+            authorization_url = CloudStorageProviderManagement().authorize(user, provider)
+        except Exception as e:
+            raise BadRequest("Invalid Provider")
 
-
-    def post(self):
-        pass
-
-    def put(self):
-        pass
+        return {
+            'status': 'success',
+            'authorization_url': authorization_url,
+            'message': 'Please visit the authorization url and login to '+provider
+        }, 200
