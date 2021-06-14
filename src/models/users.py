@@ -50,7 +50,7 @@ class User(db.Model):
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=180),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=int(os.getenv('JWT_EXPIRY_MINUTES'))),
                 'iat': datetime.datetime.utcnow(),
                 'sub': user_id
             }
