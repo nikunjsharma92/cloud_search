@@ -1,13 +1,16 @@
 from flask_restful import Resource
 
+from src.adapters.input_adapters.search_input_adapter import SearchInputAdapter
+from src.usecases.content_store_management import ContentStoreManagement
+
 
 class Search(Resource):
-    # return list of files matching the query terms
+    # TODO: pagination
     def get(self):
-        return {'hello': 'world'}
-
-    def post(self):
-        pass
-
-    def put(self):
-        pass
+        parsed_request = SearchInputAdapter().parse_get_request()
+        results = ContentStoreManagement().search(parsed_request[SearchInputAdapter.QUERY])
+        return {
+            "status": "success",
+            "count": len(results),
+            "results": [result.to_dict() for result in results],
+        }

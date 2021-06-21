@@ -2,6 +2,8 @@ from flask import Flask
 from flask_restful import Api
 from dotenv import load_dotenv
 from flask_migrate import Migrate
+
+from src.deliveries.http.search import Search
 from src.models import *
 from src.deliveries.http.authenticate_provider import AuthenticateProvider
 from src.deliveries.http.authorize_provider import AuthorizeProvider
@@ -29,6 +31,7 @@ def create_app(name):
     api.add_resource(Register, '/register')
     api.add_resource(Login, '/login')
     api.add_resource(Logout, '/logout')
+    api.add_resource(Search, '/search')
 
     return app
 

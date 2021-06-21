@@ -1,5 +1,5 @@
 from datetime import datetime
-from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, UpdateByQuery
+from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, UpdateByQuery, Search
 
 
 class FileContent(Document):
@@ -31,4 +31,6 @@ class FileContent(Document):
             }
         })
         resp = ubq.execute()
-        print("Response: ", resp)
+
+    def search_content(self, querystring: str):
+        return super(FileContent, self).search().query("match", content=querystring)

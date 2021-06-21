@@ -4,6 +4,7 @@ from dropbox import Dropbox
 from dropbox.files import FileMetadata
 from dropbox import DropboxOAuth2FlowNoRedirect
 import os
+import urllib.parse
 
 from src.lib.cloud_storage_providers.adapters.provider_file_response_adapter import ProviderFileResponse
 from src.lib.cloud_storage_providers.cloud_storage_provider_interface import CloudStorageProviderInterface
@@ -70,5 +71,7 @@ class DropboxCloudStorage(CloudStorageProviderInterface):
 
         return local_file_path
 
-
-
+    def get_file_url(self, filepath: str):
+        directory = filepath.split("/")
+        directory_str = "/".join(directory[:-1])
+        return 'https://www.dropbox.com/home'+directory_str+"?"+urllib.parse.urlencode({"preview": directory[-1]})
