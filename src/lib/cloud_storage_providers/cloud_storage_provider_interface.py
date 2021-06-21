@@ -35,7 +35,7 @@ class CloudStorageProviderInterface(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def get_file_content(self, name: str, path: str):
+    def get_file_content(self, path: str):
         raise NotImplementedError()
 
     @abc.abstractmethod

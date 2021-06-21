@@ -1,18 +1,21 @@
 from typing import Union
-
+import uuid
 from dropbox import Dropbox
 from dropbox.files import FileMetadata
-from tika import parser
 from dropbox import DropboxOAuth2FlowNoRedirect
 import os
 
+from src.lib.cloud_storage_providers.adapters.provider_file_response_adapter import ProviderFileResponse
+from src.lib.cloud_storage_providers.cloud_storage_provider_interface import CloudStorageProviderInterface
 
-class DropboxFileStorage:
+
+class DropboxCloudStorage(CloudStorageProviderInterface):
     __client: Union[Dropbox, None]
     __access_token: str
 
     def __init__(self):
         self.__client = None
+        self.__storage_client = None
 
     def authorize_no_redirect(self):
         pass
@@ -31,43 +34,41 @@ class DropboxFileStorage:
     def init_client(self, access_token):
         self.__client = Dropbox(access_token)
 
+    def init_storage(self, storage_client):
+        self.__storage_client = storage_client
+
     def get_file_list(self):
         response = self.__client.files_list_folder(
             path='',
             recursive=True,
             include_media_info=False,
-            include_deleted=True,
+            include_deleted=False,
             limit=2,
-            include_non_downloadable_files=True)
-
+            include_non_downloadable_files=False)
+        #TODO: filter out non-pdf/docx files
         while True:
             for entry in response.entries:
                 if type(entry) == FileMetadata:
-                    yield {'name': entry.name, 'path': entry.path_lower, 'size': entry.size,
-                           'is_downloadable': entry.is_downloadable}
+                    yield ProviderFileResponse('dropbox', entry.id, entry.name, entry.path_lower, entry.size, entry.server_modified)
 
             if not response.has_more:
                 break
 
             response = self.__client.files_list_folder_continue(cursor=response.cursor)
 
-    def sync(self):
-        files = self.get_file_list()
-        for file in files:
-            extracted_chunk = self.download_file(file['name'], file['path'])
-            # write to ES
-
-    def download_file(self, name: str, path: str):
+    def get_file_content(self, path: str):
         metadata, res = self.__client.files_download(path)
-        for data_chunk in res.iter_content(chunk_size=1000):
-            extracted_content = self.extract_content(data_chunk)
-            if extracted_content['content'] is not None:
-                yield extracted_content['content']
+        return res
 
-        # since dropbox utilizes stream to make requests, connections need to be closed
-        # more information
-        # <https://github.com/dropbox/dropbox-sdk-python/blob/13bf19853a8e418dd2bba3e8857619c53206a3c1/dropbox/dropbox_client.py#L568>
-        self.__client.close()
+    def download_file_content(self, dropbox_file_path):
+        extension = dropbox_file_path.split(".")[-1]
+        local_file_path = '/tmp/'+str(uuid.uuid4()) + "." + extension
+        res = self.get_file_content(dropbox_file_path)
+        with open(local_file_path, 'wb') as f:
+            for content in res.iter_content(chunk_size=64000):
+                f.write(content)
 
-    def extract_content(self, data_chunk):
-        return parser.from_buffer(data_chunk)
+        return local_file_path
+
+
+

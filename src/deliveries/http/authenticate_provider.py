@@ -9,7 +9,7 @@ class AuthenticateProvider(Resource):
     def post(self, user, provider):
         parsed_request = AuthenticateInputAdapter().parse_post_request()
 
-        authentication_response = CloudStorageProviderManagement().authenticate(user, provider, parsed_request[AuthenticateInputAdapter.CODE])
+        authentication_response = CloudStorageProviderManagement(provider).authenticate(parsed_request[AuthenticateInputAdapter.CODE])
 
         return {
             'status': 'success',

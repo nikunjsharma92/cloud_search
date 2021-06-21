@@ -10,7 +10,7 @@ class AuthorizeProvider(Resource):
     @authorize
     def get(self, user, provider):
         try:
-            authorization_url = CloudStorageProviderManagement().authorize(user, provider)
+            authorization_url = CloudStorageProviderManagement(provider).authorize()
         except Exception as e:
             raise BadRequest("Invalid Provider")
 
