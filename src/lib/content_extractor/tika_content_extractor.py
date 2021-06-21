@@ -11,10 +11,10 @@ class TikaContentExtractor(ContentExtractorInterface):
         self.__client.TikaClientOnly = True
         # self.__client.TikaServerEndpoint = os.getenv('TIKA_ENDPOINT')
 
-    def extract_content_from_buffer(self, buffer) -> ContentExtractorResponse:
+    def extract_from_buffer(self, buffer) -> ContentExtractorResponse:
         response = self.__client.parser.from_buffer(buffer)
         return ContentExtractorResponse(content=response['content'])
 
-    def extract_content_from_file(self, filepath: str) -> ContentExtractorResponse:
+    def extract_from_file(self, filepath: str) -> ContentExtractorResponse:
         response = self.__client.parser.from_file(filepath)
         return ContentExtractorResponse(content=response['content'])
