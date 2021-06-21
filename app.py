@@ -9,11 +9,9 @@ from src.deliveries.http.login import Login
 from src.deliveries.http.logout import Logout
 from src.deliveries.http.register import Register
 from src.deliveries.http.sync_files import Sync
-load_dotenv()
-
 import os
 from database import db, bcrypt
-# from routes import initialize_routes
+import elasticsearch_connection
 
 
 def create_app(name):
@@ -34,6 +32,7 @@ def create_app(name):
 
     return app
 
+load_dotenv()
 
 app = create_app(__name__)
 
