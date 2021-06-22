@@ -25,7 +25,7 @@ class FileOutputAdapter:
             'provider': self.provider,
             'provider_file_id': self.provider_file_id,
             'last_sync_status': self.last_sync_status,
-            'last_synced_on': self.last_synced_on.isoformat(),
+            'last_synced_on': self.last_synced_on.isoformat() if self.last_synced_on is not None else None,
             'created_on': self.created_on.isoformat(),
             'updated_on': self.updated_on.isoformat(),
         }

@@ -10,7 +10,7 @@ class FileContent(Document):
     updated_on = Date()
 
     class Index:
-        name = 'files_content-temp3'
+        name = 'files_content-store'
         settings = {
             "number_of_shards": 2,
         }
