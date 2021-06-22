@@ -7,8 +7,9 @@ from src.utils.authorize import authorize
 
 class Search(Resource):
     # TODO: pagination
+    @staticmethod
     @authorize
-    def get(self, user):
+    def get(user):
         parsed_request = SearchInputAdapter().parse_get_request()
         results = ContentStoreManagement().search(user, parsed_request[SearchInputAdapter.QUERY])
         return {
