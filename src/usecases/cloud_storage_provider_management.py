@@ -64,6 +64,7 @@ class CloudStorageProviderManagement:
             file.mark_sync_status_pending()
             ContentStoreManagement().update_content_store(file, extraction_response.content)
         except Exception as e:
+            print("Exception:", e)
             file.mark_sync_status_failed()
             return False
 
@@ -81,6 +82,6 @@ class CloudStorageProviderManagement:
 
     @staticmethod
     def is_file_synced(file_record, provider_file_response):
-        return file_record and file_record.sync_status == 'COMPLETED' and \
+        return file_record and file_record.last_sync_status == 'COMPLETED' and \
                provider_file_response.last_modified_on <= file_record.last_synced_on
 
