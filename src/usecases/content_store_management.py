@@ -33,6 +33,8 @@ class ContentStoreManagement():
         results = []
         for result in search_results:
             file = File.get_by_id(result.file_id)
+            if not file:
+                continue
             file_url = get_cloud_storage_provider(file.provider)().get_file_url(file.filepath)
             results.append(SearchResultOutputAdapter(file.id, file.filepath, file.provider_file_id, file.provider, file_url))
 
