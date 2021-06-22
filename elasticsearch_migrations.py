@@ -1,4 +1,3 @@
 from src.models.files_content import FileContent
-import elasticsearch_connection
 
-FileContent.init()
+FileContent.init(using='es_conn')

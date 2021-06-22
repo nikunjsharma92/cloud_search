@@ -10,13 +10,13 @@ class FileContent(Document):
     updated_on = Date()
 
     class Index:
-        name = 'files_content-store'
+        name = 'files_content_store'
         settings = {
             "number_of_shards": 2,
         }
 
     def save(self, **kwargs):
-        return super(FileContent, self).save(**kwargs)
+        return super(FileContent, self).save(**kwargs, using='es_conn')
 
     def append_content(self, new_content):
         ubq = UpdateByQuery(index=self.Index.name)
@@ -35,4 +35,4 @@ class FileContent(Document):
 
     def search_content(self, user_id: int, querystring: str):
         q = Q("match", user_id=user_id) & Q("match", content=querystring)
-        return super(FileContent, self).search().query(q)
+        return super(FileContent, self).search(using='es_conn').query(q)
