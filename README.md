@@ -187,3 +187,4 @@ curl --location --request GET 'http://localhost:8080/search?q=test' \
 [PRD Document](https://docs.google.com/document/d/11qkfg3Sa6isYh_33aD-E8zuwxef-E2fZuUhiocjD1R0/edit?usp=sharing)
 
 # Architecture:
+![Alt text](cloud_search_arch.png)
