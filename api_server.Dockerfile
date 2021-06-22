@@ -7,5 +7,5 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-RUN chmod +x ./api_server_entrypoint.sh
-ENTRYPOINT ["./api_server_entrypoint.sh"]
+
+CMD ["bash", "./api_server_entrypoint.sh"]
