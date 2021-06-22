@@ -1,21 +1,8 @@
 version: '3'
 
 services:
-#  api:
-#    container_name: api
-#    build: .
-#    ports:
-#      - "5000:5000"
-#    environment:
-#     - NODE_ENV=local
-#     - ES_HOST=elasticsearch
-#     - PORT=3000
-#     - DBX_APP_KEY=5q28gt6qyndwadq
-#     - DBX_APP_SECRET=nt7vu3ycirob5db
-#     - TIKA_CLIENT_ONLY=true
-#     - TIKA_SERVER_ENDPOINT=tika
-
   masterdb:
+    container_name: masterdb
     image: mysql
     ports:
       - 3306:3306
@@ -43,8 +30,7 @@ services:
       - elastic_data_node1:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-#    networks:
-#      - elastic
+
   elastic-node2:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.1
     container_name: elastic-node2
@@ -61,8 +47,7 @@ services:
         hard: -1
     volumes:
       - elastic_data_node2:/usr/share/elasticsearch/data
-#    networks:
-#      - elastic
+
   elastic-node3:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.1
     container_name: elastic-node3
@@ -79,20 +64,49 @@ services:
         hard: -1
     volumes:
       - elastic_data_node3:/usr/share/elasticsearch/data
+
   tika:
     image: apache/tika:latest
     container_name: tika
     ports:
       - 9998:9998
 
-    #
-    #  frontend: # Nginx Server For Frontend App
-    #    container_name: cs-frontend
-    #    image: nginx
-    #    volumes: # Serve local "public" dir
-    #      - ./public:/usr/share/nginx/html
-    #    ports:
-    #      - "8080:80" # Forward site to localhost:8080
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_volume:/data
+
+  api_server:
+    container_name: api_server
+    build:
+      context: .
+      dockerfile: api_server.Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    links:
+      - masterdb
+      - elastic-node1
+      - elastic-node2
+      - elastic-node3
+
+  background_workers:
+    container_name: background_workers
+    build:
+      context: .
+      dockerfile: background_workers.Dockerfile
+    env_file:
+      - .env
+    links:
+      - api_server
+      - redis
+      - elastic-node1
+      - elastic-node2
+      - elastic-node3
 
 volumes:
   elastic_data_node1:
@@ -102,5 +116,7 @@ volumes:
   elastic_data_node3:
     driver: local
   masterdb_volume:
+    driver: local
+  redis_volume:
     driver: local
 
