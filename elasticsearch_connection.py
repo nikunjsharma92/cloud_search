@@ -1,2 +1,7 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from elasticsearch_dsl.connections import connections
-connections.create_connection(hosts=['localhost'])
+print("ELASTIC ENV: ", os.getenv('ELASTIC_SEARCH_URI'))
+connections.create_connection(hosts=[os.getenv('ELASTIC_SEARCH_URI')])
