@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy.orm import relationship
 
 from database import db
@@ -17,7 +19,7 @@ class File(db.Model):
     filepath = db.Column(db.String(2047), nullable=False)
     content_store_id = db.Column(db.String(255), nullable=True)
     last_synced_on = db.Column(db.DateTime)
-    sync_status = db.Column(db.String(63), default=None)
+    last_sync_status = db.Column(db.String(63), default='PENDING')
     size_bytes = db.Column(db.Integer, nullable=False)
     is_deleted = db.Column(db.Boolean, default=False)
     created_on = db.Column(db.DateTime, nullable=False)
@@ -46,6 +48,11 @@ class File(db.Model):
         file = File.query.filter_by(provider_file_id=provider_file_id).first()
         return file
 
+    @staticmethod
+    def get_by_user_id(user_id):
+        files: List[File] = File.query.filter_by(user_id=user_id).all()
+        return files
+
     def get_by_details(self, user, provider, filename, filepath):
         pass
 
@@ -59,9 +66,14 @@ class File(db.Model):
 
     @staticmethod
     def create_file_record(user_id, file_response: ProviderFileResponse):
-        file = File(user_id, file_response.provider, file_response.provider_id, file_response.filename,
-                    file_response.filepath,
-                    file_response.size_bytes)
+        file = File(
+            user_id=user_id,
+            provider=file_response.provider,
+            provider_file_id=file_response.provider_id,
+            filename=file_response.filename,
+            filepath=file_response.filepath,
+            size_bytes=file_response.size_bytes
+        )
         file.save()
         return file
 
@@ -72,14 +84,14 @@ class File(db.Model):
         self.update()
 
     def mark_sync_status_pending(self):
-        self.sync_status = 'PENDING'
+        self.last_sync_status = 'PENDING'
         self.update()
 
     def mark_sync_status_completed(self, synced_on):
-        self.sync_status = 'COMPLETED'
+        self.last_sync_status = 'COMPLETED'
         self.last_synced_on = synced_on
         self.update()
 
     def mark_sync_status_failed(self):
-        self.sync_status = 'FAILED'
+        self.last_sync_status = 'FAILED'
         self.update()

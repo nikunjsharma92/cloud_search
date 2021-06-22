@@ -6,3 +6,4 @@ class ProviderFileResponse:
         self.filepath = filepath
         self.size_bytes = size_bytes
         self.last_modified_on = last_modified_on
+

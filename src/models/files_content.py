@@ -4,6 +4,7 @@ from elasticsearch_dsl import Document, Date, Integer, Keyword, Text, UpdateByQu
 
 class FileContent(Document):
     file_id = Integer()
+    user_id = Integer()
     content = Text() #Text(analyzer='snowball')
     created_on = Date()
     updated_on = Date()
@@ -32,5 +33,5 @@ class FileContent(Document):
         })
         resp = ubq.execute()
 
-    def search_content(self, querystring: str):
-        return super(FileContent, self).search().query("match", content=querystring)
+    def search_content(self, user_id: int, querystring: str):
+        return super(FileContent, self).search().query("match", content=querystring, user_id=user_id)
