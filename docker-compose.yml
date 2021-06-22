@@ -88,6 +88,9 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    restart: on-failure
+    volumes:
+      - .:/app
     links:
       - masterdb
       - elastic-node1
@@ -101,6 +104,9 @@ services:
       dockerfile: background_workers.Dockerfile
     env_file:
       - .env
+    restart: on-failure
+    volumes:
+      - .:/app
     links:
       - api_server
       - redis
