@@ -2,18 +2,12 @@ from flask import Flask
 from flask_restful import Api
 from dotenv import load_dotenv
 from flask_migrate import Migrate
-
-from src.deliveries.http.search import Search
-from src.models import *
-from src.deliveries.http.authenticate_provider import AuthenticateProvider
-from src.deliveries.http.authorize_provider import AuthorizeProvider
-from src.deliveries.http.login import Login
-from src.deliveries.http.logout import Logout
-from src.deliveries.http.register import Register
-from src.deliveries.http.sync_files import Sync
 import os
+
+from routes import initialize_routes
 from database import db, bcrypt
 import elasticsearch_connection
+from src.models import *
 
 
 def create_app(name):
@@ -25,14 +19,7 @@ def create_app(name):
     db.init_app(app)
     bcrypt.init_app(app)
     api = Api(app)
-    api.add_resource(AuthorizeProvider, '/<provider>/authorize')
-    api.add_resource(AuthenticateProvider, '/<provider>/authenticate')
-    api.add_resource(Sync, '/<provider>/sync')
-    api.add_resource(Register, '/register')
-    api.add_resource(Login, '/login')
-    api.add_resource(Logout, '/logout')
-    api.add_resource(Search, '/search')
-
+    initialize_routes(api)
     return app
 
 load_dotenv()
