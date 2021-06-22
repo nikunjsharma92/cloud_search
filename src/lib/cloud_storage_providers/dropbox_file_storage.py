@@ -44,13 +44,14 @@ class DropboxCloudStorage(CloudStorageProviderInterface):
             recursive=True,
             include_media_info=False,
             include_deleted=False,
-            limit=2,
+            limit=100,
             include_non_downloadable_files=False)
-        #TODO: filter out non-pdf/docx files
+
         while True:
             for entry in response.entries:
                 if type(entry) == FileMetadata:
-                    yield ProviderFileResponse('dropbox', entry.id, entry.name, entry.path_lower, entry.size, entry.server_modified)
+                    if self.allowed_file_types(entry.name):
+                        yield ProviderFileResponse('dropbox', entry.id, entry.name, entry.path_lower, entry.size, entry.server_modified)
 
             if not response.has_more:
                 break
@@ -75,3 +76,6 @@ class DropboxCloudStorage(CloudStorageProviderInterface):
         directory = filepath.split("/")
         directory_str = "/".join(directory[:-1])
         return 'https://www.dropbox.com/home'+directory_str+"?"+urllib.parse.urlencode({"preview": directory[-1]})
+
+    def allowed_file_types(self, filename):
+        return os.path.splitext(filename)[-1] in ['.pdf', '.docx', '.gdoc']
