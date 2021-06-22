@@ -9,10 +9,15 @@ CloudSearch allows you to integrate with multiple cloud providers and search wit
 1. Docker
 2. At least 4GB of available RAM
 
+##### Note: The API Server takes time to boot up as it waits for Db and Elastic service to be ready. You can monitor the status of API Service by running:
+`docker container logs api_server -f`
+
 ## How to run
 `docker-compose up`
 
 # APIs
+
+<br><br/>
 ## Register
 ### Request:
 ```
@@ -30,7 +35,7 @@ curl --location --request POST 'http://localhost:8080/register' \
 	"message": "Registered Successfully. Please signin to your account"
 }
 ```
-
+<br><br/>
 ## Login
 ### Request:
 ```
@@ -50,7 +55,7 @@ curl --location --request POST 'http://localhost:8080/login' \
 	"auth_token": "<user_auth_token>"
 }
 ```
-
+<br><br/>
 ## Logout:
 ### Request:
 ```
@@ -66,7 +71,7 @@ curl --location --request POST 'http://localhost:8080/logout' \
 	"message": "Successffully logged out."
 }
 ```
-
+<br><br/>
 ## Authorize Provider
 ### Request:
 ```
@@ -86,7 +91,7 @@ curl --location --request GET 'http://localhost:8080/<provider>/authorize' \
 
 ### List of Supported Providers:
 1. dropbox
-
+<br><br/>
 ## Authenticate Provider
 ### Request:
 ```
@@ -105,7 +110,7 @@ curl --location --request POST 'http://localhost:8080/<provider>/authenticate' \
 	"message": "Successfully authenticated provider"
 }
 ```
-
+<br><br/>
 ## Start Synchronization
 ### Request:
 ```
@@ -123,7 +128,7 @@ curl --location --request POST 'http://localhost:8080/<provider>/sync' \
 	"message": "Sync successfully started"
 }
 ```
-
+<br><br/>
 ## Get File List
 ### Request:
 ```
@@ -157,6 +162,7 @@ curl --location --request GET 'http://localhost:8080/files' \
 	"count": 1
 }
 ```
+<br><br/>
 ## Search
 ### Request:
 ```
@@ -183,8 +189,10 @@ curl --location --request GET 'http://localhost:8080/search?q=test' \
 	},
 ]
 ```
+<br><br/>
 # PRD:
 [PRD Document](https://docs.google.com/document/d/11qkfg3Sa6isYh_33aD-E8zuwxef-E2fZuUhiocjD1R0/edit?usp=sharing)
 
+<br><br/>
 # Architecture:
 ![Alt text](cloud_search_arch.png)
